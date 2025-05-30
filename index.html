@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flagster</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #bbdefb, #c5cae9);
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-attachment: fixed;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 36px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 5px 15px;
+            border-radius: 8px;
+            display: inline-block;
+            letter-spacing: 1px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 700px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #3498db;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.7);
+            padding: 8px 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .exit-btn {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 14px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.2s;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .exit-btn:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        
+        .flag-container {
+            width: 100%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .flag-image {
+            width: 350px;
+            height: 210px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background-color: #f5f5f5;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+        
+        .option-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .option-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .option-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .correct {
+            background-color: #2ecc71;
+            font-weight: bold;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.5);
+            border: 2px solid white;
+        }
+        
+        .correct::after {
+            content: " ✓";
+            font-size: 18px;
+            margin-left: 5px;
+        }
+        
+        .incorrect {
+            background-color: #e74c3c;
+        }
+        
+        .results-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .results-container h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .score-display {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #3498db;
+        }
+        
+        .restart-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .next-btn {
+            background-color: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .next-btn:hover {
+            background-color: #8e44ad;
+        }
+        
+        .start-screen {
+            text-align: center;
+            animation: fadeIn 0.8s ease-in-out;
+            padding: 20px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .start-screen h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .start-screen p {
+            margin-bottom: 20px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #34495e;
+        }
+        
+        .start-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+        
+        .start-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+        
+        .start-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .game-mode-selector {
+            margin: 25px auto;
+            text-align: left;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .game-mode-selector p {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .game-mode-selector label {
+            display: block;
+            margin: 12px 0;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 12px 15px;
+            border-radius: 8px;
+            background-color: rgba(255,255,255,0.7);
+            border: 1px solid transparent;
+        }
+        
+        .game-mode-selector label:hover {
+            background-color: white;
+            border-color: #3498db;
+            transform: translateX(5px);
+        }
+        
+        .game-mode-selector input[type="radio"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+        
+        .game-mode-selector input[type="radio"]:checked + span {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        /* All Countries mode styles */
+        .all-countries-container {
+            max-height: 300px;
+            overflow-y: auto;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        
+        .all-countries-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .country-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .country-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .country-btn:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .country-btn.guessed {
+            background-color: #2ecc71;
+            opacity: 0.7;
+        }
+        
+        .country-search {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .country-status {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .options-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .flag-image {
+                width: 280px;
+                height: 168px;
+            }
+            
+            .all-countries-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🏴 Flagster</h1>
+    
+    <div class="container" style="position: relative;">
+        <button class="exit-btn" id="exitGameBtn" title="Exit Game">&times;</button>
+        
+        <div class="start-screen" id="startScreen">
+            <p>Can you identify these country flags? Test your geography knowledge!</p>
+            
+            <div class="game-mode-selector">
+                <p>Select game mode:</p>
+                <label>
+                    <input type="radio" name="gameMode" value="regular" checked> <span>Regular Mode (25 Rounds)</span>
+                </label>
+                <label>
+                    <input type="radio" name="gameMode" value="streak"> <span>Streak Mode (End on first mistake)</span>
+                </label>
+                <label>
+                    <input type="radio" name="gameMode" value="allCountries"> <span>All Countries Mode (Guess all countries)</span>
+                </label>
+            </div>
+            
+            <button class="start-btn" id="startBtn">Start Game</button>
+        </div>
+        
+        <div id="gameScreen" style="display: none; width: 100%">
+            
+            <div class="game-info">
+                <div>Round: <span id="roundCounter">1</span>/25</div>
+                <div>Score: <span id="scoreCounter">0</span></div>
+            </div>
+            
+            <div class="timer" id="timerDisplay">00:00</div>
+            
+            <div class="flag-container">
+                <img id="flagImage" class="flag-image" src="" alt="Country Flag">
+            </div>
+            
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be generated by JavaScript -->
+            </div>
+            
+            <div id="allCountriesContainer" class="all-countries-container" style="display: none;">
+                <input type="text" id="countrySearch" class="country-search" placeholder="Search for a country...">
+                <div class="all-countries-grid" id="allCountriesGrid">
+                    <!-- All countries will be listed here -->
+                </div>
+                <div class="country-status">
+                    Remaining: <span id="remainingCountries">0</span> / 
+                    Guessed: <span id="guessedCountries">0</span>
+                </div>
+            </div>
+            
+            <button class="next-btn" id="nextBtn">Next Flag</button>
+        </div>
+        
+        <div class="results-container" id="resultsScreen">
+            <h2 id="resultsHeading">Game Over!</h2>
+            <p>Your final score:</p>
+            <div class="score-display"><span id="finalScore">0</span>/25</div>
+            <div id="resultMessage"></div>
+            <button class="restart-btn" id="restartBtn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Country data with ISO codes and names
+        const countries = [
+            { code: 'ad', name: 'Andorra' },
+            { code: 'ae', name: 'United Arab Emirates' },
+            { code: 'af', name: 'Afghanistan' },
+            { code: 'ag', name: 'Antigua and Barbuda' },
+            { code: 'al', name: 'Albania' },
+            { code: 'am', name: 'Armenia' },
+            { code: 'ao', name: 'Angola' },
+            { code: 'ar', name: 'Argentina' },
+            { code: 'at', name: 'Austria' },
+            { code: 'au', name: 'Australia' },
+            { code: 'az', name: 'Azerbaijan' },
+            { code: 'ba', name: 'Bosnia and Herzegovina' },
+            { code: 'bb', name: 'Barbados' },
+            { code: 'bd', name: 'Bangladesh' },
+            { code: 'be', name: 'Belgium' },
+            { code: 'bf', name: 'Burkina Faso' },
+            { code: 'bg', name: 'Bulgaria' },
+            { code: 'bh', name: 'Bahrain' },
+            { code: 'bi', name: 'Burundi' },
+            { code: 'bj', name: 'Benin' },
+            { code: 'bn', name: 'Brunei' },
+            { code: 'bo', name: 'Bolivia' },
+            { code: 'br', name: 'Brazil' },
+            { code: 'bs', name: 'Bahamas' },
+            { code: 'bt', name: 'Bhutan' },
+            { code: 'bw', name: 'Botswana' },
+            { code: 'by', name: 'Belarus' },
+            { code: 'bz', name: 'Belize' },
+            { code: 'ca', name: 'Canada' },
+            { code: 'cd', name: 'Democratic Republic of the Congo' },
+            { code: 'cf', name: 'Central African Republic' },
+            { code: 'cg', name: 'Republic of the Congo' },
+            { code: 'ch', name: 'Switzerland' },
+            { code: 'ci', name: 'Ivory Coast' },
+            { code: 'cl', name: 'Chile' },
+            { code: 'cm', name: 'Cameroon' },
+            { code: 'cn', name: 'China' },
+            { code: 'co', name: 'Colombia' },
+            { code: 'cr', name: 'Costa Rica' },
+            { code: 'cu', name: 'Cuba' },
+            { code: 'cv', name: 'Cape Verde' },
+            { code: 'cy', name: 'Cyprus' },
+            { code: 'cz', name: 'Czech Republic' },
+            { code: 'de', name: 'Germany' },
+            { code: 'dj', name: 'Djibouti' },
+            { code: 'dk', name: 'Denmark' },
+            { code: 'dm', name: 'Dominica' },
+            { code: 'do', name: 'Dominican Republic' },
+            { code: 'dz', name: 'Algeria' },
+            { code: 'ec', name: 'Ecuador' },
+            { code: 'ee', name: 'Estonia' },
+            { code: 'eg', name: 'Egypt' },
+            { code: 'er', name: 'Eritrea' },
+            { code: 'es', name: 'Spain' },
+            { code: 'et', name: 'Ethiopia' },
+            { code: 'fi', name: 'Finland' },
+            { code: 'fj', name: 'Fiji' },
+            { code: 'fm', name: 'Micronesia' },
+            { code: 'fr', name: 'France' },
+            { code: 'ga', name: 'Gabon' },
+            { code: 'gb', name: 'United Kingdom' },
+            { code: 'gd', name: 'Grenada' },
+            { code: 'ge', name: 'Georgia' },
+            { code: 'gh', name: 'Ghana' },
+            { code: 'gm', name: 'Gambia' },
+            { code: 'gn', name: 'Guinea' },
+            { code: 'gq', name: 'Equatorial Guinea' },
+            { code: 'gr', name: 'Greece' },
+            { code: 'gt', name: 'Guatemala' },
+            { code: 'gw', name: 'Guinea-Bissau' },
+            { code: 'gy', name: 'Guyana' },
+            { code: 'hn', name: 'Honduras' },
+            { code: 'hr', name: 'Croatia' },
+            { code: 'ht', name: 'Haiti' },
+            { code: 'hu', name: 'Hungary' },
+            { code: 'id', name: 'Indonesia' },
+            { code: 'ie', name: 'Ireland' },
+            { code: 'il', name: 'Israel' },
+            { code: 'in', name: 'India' },
+            { code: 'iq', name: 'Iraq' },
+            { code: 'ir', name: 'Iran' },
+            { code: 'is', name: 'Iceland' },
+            { code: 'it', name: 'Italy' },
+            { code: 'jm', name: 'Jamaica' },
+            { code: 'jo', name: 'Jordan' },
+            { code: 'jp', name: 'Japan' },
+            { code: 'ke', name: 'Kenya' },
+            { code: 'kg', name: 'Kyrgyzstan' },
+            { code: 'kh', name: 'Cambodia' },
+            { code: 'ki', name: 'Kiribati' },
+            { code: 'km', name: 'Comoros' },
+            { code: 'kn', name: 'Saint Kitts and Nevis' },
+            { code: 'kp', name: 'North Korea' },
+            { code: 'kr', name: 'South Korea' },
+            { code: 'kw', name: 'Kuwait' },
+            { code: 'kz', name: 'Kazakhstan' },
+            { code: 'la', name: 'Laos' },
+            { code: 'lb', name: 'Lebanon' },
+            { code: 'lc', name: 'Saint Lucia' },
+            { code: 'li', name: 'Liechtenstein' },
+            { code: 'lk', name: 'Sri Lanka' },
+            { code: 'lr', name: 'Liberia' },
+            { code: 'ls', name: 'Lesotho' },
+            { code: 'lt', name: 'Lithuania' },
+            { code: 'lu', name: 'Luxembourg' },
+            { code: 'lv', name: 'Latvia' },
+            { code: 'ly', name: 'Libya' },
+            { code: 'ma', name: 'Morocco' },
+            { code: 'mc', name: 'Monaco' },
+            { code: 'md', name: 'Moldova' },
+            { code: 'me', name: 'Montenegro' },
+            { code: 'mg', name: 'Madagascar' },
+            { code: 'mh', name: 'Marshall Islands' },
+            { code: 'mk', name: 'North Macedonia' },
+            { code: 'ml', name: 'Mali' },
+            { code: 'mm', name: 'Myanmar' },
+            { code: 'mn', name: 'Mongolia' },
+            { code: 'mr', name: 'Mauritania' },
+            { code: 'mt', name: 'Malta' },
+            { code: 'mu', name: 'Mauritius' },
+            { code: 'mv', name: 'Maldives' },
+            { code: 'mw', name: 'Malawi' },
+            { code: 'mx', name: 'Mexico' },
+            { code: 'my', name: 'Malaysia' },
+            { code: 'mz', name: 'Mozambique' },
+            { code: 'na', name: 'Namibia' },
+            { code: 'ne', name: 'Niger' },
+            { code: 'ng', name: 'Nigeria' },
+            { code: 'ni', name: 'Nicaragua' },
+            { code: 'nl', name: 'Netherlands' },
+            { code: 'no', name: 'Norway' },
+            { code: 'np', name: 'Nepal' },
+            { code: 'nr', name: 'Nauru' },
+            { code: 'nz', name: 'New Zealand' },
+            { code: 'om', name: 'Oman' },
+            { code: 'pa', name: 'Panama' },
+            { code: 'pe', name: 'Peru' },
+            { code: 'pg', name: 'Papua New Guinea' },
+            { code: 'ph', name: 'Philippines' },
+            { code: 'pk', name: 'Pakistan' },
+            { code: 'pl', name: 'Poland' },
+            { code: 'pt', name: 'Portugal' },
+            { code: 'pw', name: 'Palau' },
+            { code: 'py', name: 'Paraguay' },
+            { code: 'qa', name: 'Qatar' },
+            { code: 'ro', name: 'Romania' },
+            { code: 'rs', name: 'Serbia' },
+            { code: 'ru', name: 'Russia' },
+            { code: 'rw', name: 'Rwanda' },
+            { code: 'sa', name: 'Saudi Arabia' },
+            { code: 'sb', name: 'Solomon Islands' },
+            { code: 'sc', name: 'Seychelles' },
+            { code: 'sd', name: 'Sudan' },
+            { code: 'se', name: 'Sweden' },
+            { code: 'sg', name: 'Singapore' },
+            { code: 'si', name: 'Slovenia' },
+            { code: 'sk', name: 'Slovakia' },
+            { code: 'sl', name: 'Sierra Leone' },
+            { code: 'sm', name: 'San Marino' },
+            { code: 'sn', name: 'Senegal' },
+            { code: 'so', name: 'Somalia' },
+            { code: 'sr', name: 'Suriname' },
+            { code: 'ss', name: 'South Sudan' },
+            { code: 'st', name: 'São Tomé and Príncipe' },
+            { code: 'sv', name: 'El Salvador' },
+            { code: 'sy', name: 'Syria' },
+            { code: 'sz', name: 'Eswatini' },
+            { code: 'td', name: 'Chad' },
+            { code: 'tg', name: 'Togo' },
+            { code: 'th', name: 'Thailand' },
+            { code: 'tj', name: 'Tajikistan' },
+            { code: 'tl', name: 'East Timor' },
+            { code: 'tm', name: 'Turkmenistan' },
+            { code: 'tn', name: 'Tunisia' },
+            { code: 'to', name: 'Tonga' },
+            { code: 'tr', name: 'Turkey' },
+            { code: 'tt', name: 'Trinidad and Tobago' },
+            { code: 'tv', name: 'Tuvalu' },
+            { code: 'tz', name: 'Tanzania' },
+            { code: 'ua', name: 'Ukraine' },
+            { code: 'ug', name: 'Uganda' },
+            { code: 'us', name: 'United States' },
+            { code: 'uy', name: 'Uruguay' },
+            { code: 'uz', name: 'Uzbekistan' },
+            { code: 'va', name: 'Vatican City' },
+            { code: 'vc', name: 'Saint Vincent and the Grenadines' },
+            { code: 've', name: 'Venezuela' },
+            { code: 'vn', name: 'Vietnam' },
+            { code: 'vu', name: 'Vanuatu' },
+            { code: 'ws', name: 'Samoa' },
+            { code: 'ye', name: 'Yemen' },
+            { code: 'za', name: 'South Africa' },
+            { code: 'zm', name: 'Zambia' },
+            { code: 'zw', name: 'Zimbabwe' }
+        ];
+
+        // Game variables
+        let gameCountries = [];
+        let usedCountryIndices = new Set();
+        let guessedCountries = new Set();
+        let currentRound = 0;
+        let score = 0;
+        let currentCorrectAnswer = '';
+        let currentCountryCode = '';
+        let answerSelected = false;
+        let isStreakMode = false;
+        let isAllCountriesMode = false;
+        
+        // Timer variables
+        let timerInterval;
+        let startTime;
+        let elapsedTime = 0;
+        let timerRunning = false;
+
+        // DOM elements
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const startBtn = document.getElementById('startBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const exitGameBtn = document.getElementById('exitGameBtn');
+        const allCountriesContainer = document.getElementById('allCountriesContainer');
+        const allCountriesGrid = document.getElementById('allCountriesGrid');
+        const countrySearch = document.getElementById('countrySearch');
+        const guessedCountriesEl = document.getElementById('guessedCountries');
+        const remainingCountriesEl = document.getElementById('remainingCountries');
+        const timerDisplay = document.getElementById('timerDisplay');
+        let roundCounter = document.getElementById('roundCounter');
+        let scoreCounter = document.getElementById('scoreCounter');
+        const finalScore = document.getElementById('finalScore');
+        const resultMessage = document.getElementById('resultMessage');
+        const flagImage = document.getElementById('flagImage');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const resultsHeading = document.getElementById('resultsHeading');
+
+        // Initialize the game
+        startBtn.addEventListener('click', startGame);
+        nextBtn.addEventListener('click', nextRound);
+        restartBtn.addEventListener('click', startGame);
+        exitGameBtn.addEventListener('click', exitGame);
+
+        // Filter countries in All Countries Mode
+        countrySearch.addEventListener('input', filterCountries);
+        
+        function filterCountries() {
+            const searchTerm = countrySearch.value.toLowerCase();
+            const countryButtons = allCountriesGrid.querySelectorAll('.country-btn');
+            
+            countryButtons.forEach(button => {
+                const countryName = button.textContent.toLowerCase();
+                if (countryName.includes(searchTerm) || searchTerm === '') {
+                    button.style.display = 'flex';
+                } else {
+                    button.style.display = 'none';
+                }
+            });
+        }
+
+        // Start the game
+        function startGame() {
+            // Get selected game mode
+            const gameModeBtns = document.getElementsByName('gameMode');
+            const selectedMode = Array.from(gameModeBtns).find(btn => btn.checked).value;
+            
+            isStreakMode = selectedMode === 'streak';
+            isAllCountriesMode = selectedMode === 'allCountries';
+            
+            // Reset game variables
+            currentRound = 0;
+            score = 0;
+            usedCountryIndices.clear();
+            guessedCountries.clear();
+            
+            // Reset and start timer
+            resetTimer();
+            startTimer();
+            
+            // Generate initial countries for the game
+            if (isAllCountriesMode) {
+                gameCountries = [...countries]; // Use all countries shuffled
+                gameCountries.sort(() => 0.5 - Math.random());
+            } else if (isStreakMode) {
+                gameCountries = countries.slice(); // Use all countries
+            } else {
+                // For regular mode, just get 25 random countries
+                gameCountries = getRandomCountries(25);
+            }
+            
+            // Update UI
+            startScreen.style.display = 'none';
+            resultsScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            exitGameBtn.style.display = 'flex';
+            
+            // Update game info based on mode
+            if (isAllCountriesMode) {
+                document.querySelector('.game-info').innerHTML = `
+                    <div>Countries Left: <span id="roundCounter">${countries.length}</span></div>
+                    <div>Score: <span id="scoreCounter">0</span>/${countries.length}</div>
+                `;
+                optionsContainer.style.display = 'none';
+                allCountriesContainer.style.display = 'block';
+                
+                // Reset and populate all countries grid
+                allCountriesGrid.innerHTML = '';
+                generateAllCountriesGrid();
+                updateCountryStatus();
+            } else if (isStreakMode) {
+                document.querySelector('.game-info').innerHTML = `
+                    <div>Streak: <span id="roundCounter">0</span></div>
+                    <div>Score: <span id="scoreCounter">0</span></div>
+                `;
+                optionsContainer.style.display = 'grid';
+                allCountriesContainer.style.display = 'none';
+            } else {
+                document.querySelector('.game-info').innerHTML = `
+                    <div>Round: <span id="roundCounter">1</span>/25</div>
+                    <div>Score: <span id="scoreCounter">0</span></div>
+                `;
+                optionsContainer.style.display = 'grid';
+                allCountriesContainer.style.display = 'none';
+            }
+            
+            // Reassign DOM elements after changing HTML
+            roundCounter = document.getElementById('roundCounter');
+            scoreCounter = document.getElementById('scoreCounter');
+            
+            // Start first round
+            nextRound();
+        }
+        
+        // Exit current game
+        function exitGame() {
+            if (confirm('Are you sure you want to exit this game?')) {
+                stopTimer();
+                gameScreen.style.display = 'none';
+                resultsScreen.style.display = 'none';
+                startScreen.style.display = 'block';
+                exitGameBtn.style.display = 'none';
+            }
+        }
+        
+        // Generate all countries grid for All Countries Mode
+        function generateAllCountriesGrid() {
+            // Sort countries alphabetically by name
+            const sortedCountries = [...countries].sort((a, b) => a.name.localeCompare(b.name));
+            
+            sortedCountries.forEach(country => {
+                const button = document.createElement('button');
+                button.className = 'country-btn';
+                button.dataset.code = country.code;
+                button.textContent = country.name;
+                button.addEventListener('click', () => checkAllCountriesAnswer(country));
+                allCountriesGrid.appendChild(button);
+            });
+            
+            remainingCountriesEl.textContent = countries.length;
+            guessedCountriesEl.textContent = 0;
+        }
+        
+        // Update country status counter
+        function updateCountryStatus() {
+            remainingCountriesEl.textContent = countries.length - guessedCountries.size;
+            guessedCountriesEl.textContent = guessedCountries.size;
+        }
+
+        // Get random countries for the game
+        function getRandomCountries(count) {
+            const shuffled = [...countries].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Set up the next round
+        function nextRound() {
+            // Check if we should end the game (regular mode only)
+            if (!isAllCountriesMode && !isStreakMode && currentRound >= 25) {
+                endGame('completed');
+                return;
+            }
+            
+            // For streak mode, check if we've used all countries
+            if ((isStreakMode || isAllCountriesMode) && usedCountryIndices.size >= countries.length) {
+                endGame('all-countries-used');
+                return;
+            }
+            
+            // For all countries mode, check if we've guessed all countries
+            if (isAllCountriesMode && guessedCountries.size >= countries.length) {
+                endGame('all-countries-guessed');
+                return;
+            }
+            
+            // Reset answer selection state
+            answerSelected = false;
+            nextBtn.style.display = 'none';
+            
+            // Update round counter
+            currentRound++;
+            if (isStreakMode) {
+                roundCounter.textContent = currentRound - 1; // Show current streak
+            } else if (!isAllCountriesMode) {
+                roundCounter.textContent = currentRound;
+            }
+            
+            // Get current country
+            let currentCountryIndex;
+            let currentCountry;
+            
+            if (isAllCountriesMode) {
+                // For all countries mode, find a country that hasn't been guessed yet
+                do {
+                    currentCountryIndex = Math.floor(Math.random() * countries.length);
+                    currentCountry = countries[currentCountryIndex];
+                } while (guessedCountries.has(currentCountry.code));
+            } else if (isStreakMode) {
+                // For streak mode, select a random unused country
+                do {
+                    currentCountryIndex = Math.floor(Math.random() * countries.length);
+                } while (usedCountryIndices.has(currentCountryIndex));
+                
+                // Mark this country as used
+                usedCountryIndices.add(currentCountryIndex);
+                currentCountry = countries[currentCountryIndex];
+            } else {
+                // For regular mode, use the pre-selected countries
+                currentCountry = gameCountries[currentRound - 1];
+            }
+            
+            // Store current flag details
+            currentCountryCode = currentCountry.code;
+            currentCorrectAnswer = currentCountry.name;
+            
+            // Set flag image
+            flagImage.src = `https://flagcdn.com/w320/${currentCountry.code}.png`;
+            flagImage.alt = `Flag of ${currentCountry.name}`;
+            
+            // Generate option buttons for regular and streak modes
+            if (!isAllCountriesMode) {
+                const options = getOptions(currentCountry);
+                optionsContainer.innerHTML = '';
+                options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.addEventListener('click', () => checkAnswer(option, button));
+                    optionsContainer.appendChild(button);
+                });
+                
+                // Update next button text if it's the last round in regular mode
+                if (!isStreakMode && currentRound === 25) {
+                    nextBtn.textContent = 'See Results';
+                } else {
+                    nextBtn.textContent = 'Next Flag';
+                }
+            }
+        }
+
+        // Get 4 options (1 correct, 3 random)
+        function getOptions(correctCountry) {
+            // Start with the correct answer
+            const options = [correctCountry.name];
+            
+            // Get random wrong answers
+            while (options.length < 4) {
+                const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+                if (!options.includes(randomCountry.name) && randomCountry.name !== correctCountry.name) {
+                    options.push(randomCountry.name);
+                }
+            }
+            
+            // Shuffle options
+            return options.sort(() => 0.5 - Math.random());
+        }
+
+        // Check answer in regular and streak modes
+        function checkAnswer(selectedOption, button) {
+            // Prevent multiple selections in the same round
+            if (answerSelected) return;
+            answerSelected = true;
+            
+            // Highlight correct and incorrect answers
+            const allButtons = optionsContainer.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => {
+                if (btn.textContent === currentCorrectAnswer) {
+                    btn.classList.add('correct');
+                } else if (btn === button && btn.textContent !== currentCorrectAnswer) {
+                    btn.classList.add('incorrect');
+                }
+                
+                // Disable all buttons
+                btn.disabled = true;
+            });
+            
+            // Check if answer is correct
+            const isCorrect = selectedOption === currentCorrectAnswer;
+            
+            // Update score if correct
+            if (isCorrect) {
+                score++;
+                scoreCounter.textContent = score;
+                
+                if (isStreakMode) {
+                    roundCounter.textContent = score; // Update streak counter
+                }
+            }
+            
+            // Check if this is the last answer in regular mode
+            const isLastAnswer = !isStreakMode && currentRound >= 25;
+            
+            // Stop timer if game is ending
+            if (isLastAnswer || (isStreakMode && !isCorrect)) {
+                stopTimer();
+            }
+            
+            // In Streak mode, end game on first mistake
+            if (isStreakMode && !isCorrect) {
+                setTimeout(() => endGame('streak-broken'), 1500);
+                return;
+            }
+            
+            // Show next button for last round in regular mode or if answer is incorrect
+            if (isLastAnswer || !isCorrect) {
+                nextBtn.style.display = 'block';
+                
+                // Automatic advancement after wrong answer in regular mode (except last round)
+                if (!isCorrect && !isLastAnswer && !isStreakMode) {
+                    setTimeout(() => {
+                        if (answerSelected) {
+                            nextRound();
+                        }
+                    }, 1500);
+                }
+            } else {
+                // Immediately advance to next round if correct and not the last round
+                if (isCorrect) {
+                    nextRound();
+                }
+            }
+        }
+        
+        // Check answer in All Countries Mode
+        function checkAllCountriesAnswer(country) {
+            // Check if the country has already been guessed
+            if (guessedCountries.has(country.code)) {
+                return;
+            }
+            
+            // Check if the selected country matches the current flag
+            const isCorrect = country.code === currentCountryCode;
+            
+            if (isCorrect) {
+                // Mark country as guessed
+                guessedCountries.add(country.code);
+                
+                // Update score
+                score++;
+                scoreCounter.textContent = score;
+                
+                // Update country button
+                const button = allCountriesGrid.querySelector(`[data-code="${country.code}"]`);
+                button.classList.add('guessed');
+                button.disabled = true;
+                
+                // Update country counters
+                updateCountryStatus();
+                
+                // Update round counter (countries left)
+                roundCounter.textContent = countries.length - guessedCountries.size;
+                
+                // Stop timer if all countries guessed
+                if (guessedCountries.size >= countries.length) {
+                    stopTimer();
+                    endGame('all-countries-guessed');
+                    return;
+                }
+                
+                // Move to next country immediately
+                nextRound();
+            } else {
+                // For wrong guess, flash the button red briefly
+                const button = allCountriesGrid.querySelector(`[data-code="${country.code}"]`);
+                button.classList.add('incorrect');
+                setTimeout(() => {
+                    button.classList.remove('incorrect');
+                }, 500);
+            }
+        }
+
+        // End the game and show results
+        function endGame(reason = 'completed') {
+            // Stop the timer
+            stopTimer();
+            
+            gameScreen.style.display = 'none';
+            resultsScreen.style.display = 'flex';
+            exitGameBtn.style.display = 'none';
+            finalScore.textContent = score;
+            
+            // Set result heading and format based on game mode
+            if (isAllCountriesMode) {
+                if (reason === 'all-countries-guessed') {
+                    resultsHeading.textContent = 'Amazing! You Got All Countries!';
+                } else {
+                    resultsHeading.textContent = 'All Countries Mode Ended!';
+                }
+                document.querySelector('.score-display').innerHTML = `<span id="finalScore">${score}</span>/${countries.length}`;
+                document.querySelector('.score-display').nextElementSibling.textContent = 'Countries identified:';
+                
+                // Add best time info for all countries mode
+                const bestCountKey = 'flagster_best_all_countries_count';
+                const bestTimeKey = 'flagster_best_all_countries_time';
+                const bestCount = localStorage.getItem(bestCountKey) || 0;
+                
+                // Only update if the score is better or time is better with same score
+                if (score > bestCount) {
+                    localStorage.setItem(bestCountKey, score);
+                    localStorage.setItem(bestTimeKey, elapsedTime);
+                } else if (score === parseInt(bestCount) && score === countries.length) {
+                    const bestTime = localStorage.getItem(bestTimeKey) || Infinity;
+                    if (elapsedTime < bestTime) {
+                        localStorage.setItem(bestTimeKey, elapsedTime);
+                    }
+                }
+            } else if (isStreakMode) {
+                if (reason === 'all-countries-used') {
+                    resultsHeading.textContent = 'Amazing! You Got All Countries!';
+                } else {
+                    resultsHeading.textContent = 'Streak Ended!';
+                }
+                document.querySelector('.score-display').innerHTML = `<span id="finalScore">${score}</span>`;
+                document.querySelector('.score-display').nextElementSibling.textContent = '';
+                
+                // For streak mode, higher score is always better
+                // Only compare times if the streak is the same
+                const bestStreakKey = 'flagster_best_streak';
+                const bestTimeKey = 'flagster_best_streak_time';
+                const bestStreak = localStorage.getItem(bestStreakKey) || 0;
+                
+                if (score > bestStreak) {
+                    localStorage.setItem(bestStreakKey, score);
+                    localStorage.setItem(bestTimeKey, elapsedTime);
+                } else if (score === parseInt(bestStreak) && score > 0) {
+                    const bestTime = localStorage.getItem(bestTimeKey) || Infinity;
+                    if (elapsedTime < bestTime) {
+                        localStorage.setItem(bestTimeKey, elapsedTime);
+                    }
+                }
+            } else {
+                resultsHeading.textContent = 'Game Over!';
+                document.querySelector('.score-display').innerHTML = `<span id="finalScore">${score}</span>/25`;
+                document.querySelector('.score-display').nextElementSibling.textContent = 'Your final score:';
+                
+                // For regular mode, higher score is better, then faster time
+                const bestScoreKey = 'flagster_best_regular';
+                const bestTimeKey = 'flagster_best_regular_time';
+                const bestScore = localStorage.getItem(bestScoreKey) || 0;
+                
+                if (score > bestScore) {
+                    localStorage.setItem(bestScoreKey, score);
+                    localStorage.setItem(bestTimeKey, elapsedTime);
+                } else if (score === parseInt(bestScore) && score > 0) {
+                    const bestTime = localStorage.getItem(bestTimeKey) || Infinity;
+                    if (elapsedTime < bestTime) {
+                        localStorage.setItem(bestTimeKey, elapsedTime);
+                    }
+                }
+            }
+            
+            // Set result message based on score and reason
+            let message = '';
+            
+            if (reason === 'all-countries-used' || reason === 'all-countries-guessed') {
+                message = 'Incredible! You correctly identified all country flags in the world. You\'re a true geography master!';
+            } else if (reason === 'streak-broken') {
+                if (score >= 50) {
+                    message = 'Phenomenal streak! You have extraordinary knowledge of world flags!';
+                } else if (score >= 30) {
+                    message = 'Outstanding streak! You\'re among the flag elite!';
+                } else if (score >= 20) {
+                    message = 'Incredible streak! You really know your flags!';
+                } else if (score >= 15) {
+                    message = 'Excellent streak! You have great flag knowledge!';
+                } else if (score >= 10) {
+                    message = 'Good streak! Keep practicing to improve further!';
+                } else if (score >= 5) {
+                    message = 'Decent start! You\'re learning those flags!';
+                } else {
+                    message = 'Keep studying those flags - you\'ll get better!';
+                }
+            } else {
+                // Original messaging for regular mode
+                const percentage = (score / 25) * 100;
+                if (percentage >= 90) {
+                    message = 'Outstanding! You\'re a geography expert!';
+                } else if (percentage >= 70) {
+                    message = 'Great job! You know your flags well!';
+                } else if (percentage >= 50) {
+                    message = 'Good effort! You\'re on your way to becoming a flag master.';
+                } else if (percentage >= 30) {
+                    message = 'Not bad! Keep learning those flags!';
+                } else {
+                    message = 'Keep practicing! You\'ll get better with time.';
+                }
+            }
+            
+            resultMessage.textContent = message;
+            
+            // Add time information to the result
+            const timeInfo = document.createElement('p');
+            timeInfo.style.marginTop = '15px';
+            timeInfo.style.fontSize = '18px';
+            timeInfo.textContent = `Time: ${formatTime(elapsedTime)}`;
+            
+            // Add personal best time if available
+            let bestScoreKey;
+            if (isAllCountriesMode) {
+                bestScoreKey = 'flagster_best_all_countries_count';
+                bestTimeKey = 'flagster_best_all_countries_time';
+                
+                const bestCount = localStorage.getItem(bestScoreKey);
+                const bestTime = localStorage.getItem(bestTimeKey);
+                
+                if (bestCount && bestTime) {
+                    timeInfo.innerHTML += `<br>Personal Best: ${bestCount}/${countries.length} countries in ${formatTime(parseInt(bestTime))}`;
+                }
+            } else if (isStreakMode) {
+                bestScoreKey = 'flagster_best_streak';
+                bestTimeKey = 'flagster_best_streak_time';
+                
+                const bestStreak = localStorage.getItem(bestScoreKey);
+                const bestTime = localStorage.getItem(bestTimeKey);
+                
+                if (bestStreak && bestTime) {
+                    timeInfo.innerHTML += `<br>Personal Best Streak: ${bestStreak} in ${formatTime(parseInt(bestTime))}`;
+                }
+            } else {
+                bestScoreKey = 'flagster_best_regular';
+                bestTimeKey = 'flagster_best_regular_time';
+                
+                const bestScore = localStorage.getItem(bestScoreKey);
+                const bestTime = localStorage.getItem(bestTimeKey);
+                
+                if (bestScore && bestTime) {
+                    timeInfo.innerHTML += `<br>Personal Best: ${bestScore}/25 in ${formatTime(parseInt(bestTime))}`;
+                }
+            }
+            
+            resultMessage.appendChild(timeInfo);
+        }
+        
+        // Timer functions
+        function startTimer() {
+            if (!timerRunning) {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(updateTimer, 1000);
+                timerRunning = true;
+            }
+        }
+        
+        function stopTimer() {
+            if (timerRunning) {
+                clearInterval(timerInterval);
+                elapsedTime = Date.now() - startTime;
+                timerRunning = false;
+            }
+        }
+        
+        function resetTimer() {
+            stopTimer();
+            elapsedTime = 0;
+            updateTimerDisplay();
+        }
+        
+        function updateTimer() {
+            const currentTime = Date.now();
+            elapsedTime = currentTime - startTime;
+            updateTimerDisplay();
+        }
+        
+        function updateTimerDisplay() {
+            timerDisplay.textContent = formatTime(elapsedTime);
+        }
+        
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    </script>
+</body>
+</html>
